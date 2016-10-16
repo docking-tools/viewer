@@ -18,10 +18,13 @@ export class Graph {
     private data: any;
     private svg: any;
     private nodesLinkSimulation: d3Force.Simulation<data.SimNode, data.SimLink>;
-   // @HostBinding('style.width')
+
+    // Component size
     private _width:number;
-   //@HostBinding('style.height')
     private _height:number;
+    
+    // Node size
+     @Input('nodeSize')nodeSize: number = 50;
     
     private node: any;
     private link: any;
@@ -81,15 +84,14 @@ export class Graph {
             .data(this.data.nodes).enter().append("g")
             .attr("class", "node")
             .attr("node_name", function(d) { return d.name; })
-            .attr("cx", "100")
-            .attr("cy","200")
             .attr("node_id", function(d) { return d.id; });
+
 
         var nodeEnter = this.node.append("image")
             .attr("xlink:href", function(d) { return "assets/img/securitygroup-green.svg"; })
             .attr("id", function(d){ return "image_"+ d.name; })
-            .attr("width", function(d) { return "50"; })
-            .attr("height", function(d) { return "50"; });
+            .attr("width", this.nodeSize)
+            .attr("height", this.nodeSize);
         this.node.exit().remove();
         nodeEnter.append("title")
             .text(function(d) { return d.name; });    
@@ -118,17 +120,21 @@ export class Graph {
                 this.node.attr("transform", this.nodeTick);
                 //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-                   this.link.attr("x1", function(d) { return d.source.x+25; })
-                       .attr("y1", function(d) { return d.source.y+25; })
-                       .attr("x2", function(d) { return d.target.x+25; })
-                       .attr("y2", function(d) { return d.target.y+25; });
+                    var x1 = (d) => { return d.source.x + this.nodeSize / 2; };
+                    var y1 = (d) => { return d.source.y + this.nodeSize / 2; };
+                    var x2 = (d) => { return d.target.x + this.nodeSize / 2; };
+                    var y2 = (d) => { return d.target.y + this.nodeSize / 2; };
+                   this.link.attr("x1", x1)
+                            .attr("y1", y1)
+                            .attr("x2", x2)
+                            .attr("y2", y2);
 
                  
     }
     
     protected nodeTick = (d) => {
         
-        return "translate(" + Math.max(50,Math.min(this._width -50, d.x)) + "," + Math.max(50,Math.min(this._height -50, d.y)) + ")"; 
+        return "translate(" + Math.max(this.nodeSize,Math.min(this._width - this.nodeSize, d.x)) + "," + Math.max(this.nodeSize,Math.min(this._height - this.nodeSize, d.y)) + ")"; 
     }
 }
 
